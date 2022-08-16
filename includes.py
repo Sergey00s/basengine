@@ -3,7 +3,6 @@ from pygame.locals import *
 import time
 import random
 
-
 class Scene():
     def __init__(self, name):
         self.objs = []
@@ -12,13 +11,7 @@ class Scene():
         
     def add_object(self, obj):
         self.objs.append(obj)
-        i = 0
-        while (i < len(self.objs) and i + 1 < len(self.objs)):
-            if self.objs[i].z_index > self.objs[i + 1].z_index:
-                temp = self.objs[i]
-                self.objs[i] = self.objs[i + 1]
-                self.objs[i + 1] = temp
-            i = i + 1
+        self.objs.sort(key=lambda object : object.z_index)
        
 class GameObject():
     def __init__(self, Name, position, sprite, width_height=None, z_index=1):
@@ -51,6 +44,7 @@ class Engine():
         self.window_h = window_h
         self.window_w = window_w
         self.delay = delay
+        self.clock = pygame.time.Clock()
         self.wn = pygame.display.set_mode((self.window_h, self.window_w))
         pygame.display.set_caption(caption)
 
@@ -58,7 +52,7 @@ class Engine():
         self.wn.fill((0, 0, 0))
         for obj in scene.objs:
             self.wn.blit(obj.sprite, obj.position)
-            pygame.display.update()
+        pygame.display.update()
 
     def calls(self, scene):
         for ob in scene.objs:
@@ -86,14 +80,18 @@ class Engine():
                 h = obj.width_height[1]
                 for cols in scn.objs:
                     if self._is_collision(obj, cols) != 1:
+                        print("Collision")
                         obj.translate((0, scn.gforce))
 
     def update(self, scane):
-        while True:
-            pygame.time.delay(self.delay)
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    pygame.quit()
-            self.render(scane)
-            self.physics(scane)
+        running = True
+
+        while running:
+            self.clock.tick(self.delay)
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    running = False
             self.calls(scane)
+            #self.physics()
+            self.render(scane)
