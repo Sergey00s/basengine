@@ -1,34 +1,29 @@
-from includes import *  
+from includes import *
 
-def handle_input():
-    x = 0
-    y = 0
+
+
+def inputs():
     key = pygame.key.get_pressed()
-    if key[pygame.K_UP]:
-        y = y + -32 
-    if key[pygame.K_RIGHT]:
-        x = x + 32
-    if key[pygame.K_LEFT]:
-         x = x + -32 
-    if key[pygame.K_DOWN]:
-        y = y + 32
-    return (x, y)
+    return key
+
 
 def play(obj):
-    vector = handle_input()
-    obj.translate(vector)
+    keys = inputs()
+    if keys[pygame.K_a]:
+        obj.action("top", "play", 1)
+    #obj.translate(vector)
+    
 
 if __name__ == "__main__":   
     pygame.init()
     window = Engine(600, 600, delay=100, caption="Test")
     scene = Scene("Main")
-
     player1 = GameObject("Player1", (100, 100), "first.png", None, 2)
-    player2 = GameObject("Player2", (200, 200), "first.png", None, 1)
+    player2 = GameObject("top", (200, 200), "top.png", z_index=1)
     player1.script = play
-    
+    move = Actions("top", ["first.png", "1.png", "2.png", "3.png"])
+    player1.set_action(move)
     scene.add_object(player1)
     scene.add_object(player2)
-
     window.update(scene)
 

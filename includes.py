@@ -1,3 +1,5 @@
+
+from threading import Thread
 import pygame
 from pygame.locals import *
 import time
@@ -22,6 +24,7 @@ class GameObject():
         self.z_index = z_index
         self.script = None
         self.components = {"Static" : 0, "Dynamic" : 0}
+        self.object_action = list()
         if (self.width_height != None):
             self.sprite = pygame.transform.scale(self.sprite, self.width_height)
         else:
@@ -37,7 +40,46 @@ class GameObject():
 
     def script_run(self):
         if self.script != None:
-            self.script(self)    
+            self.script(self)
+    
+    def set_action(self, actionobj):
+        self.object_action.append(actionobj)
+
+    def action(self, action, types, sec):
+        for i in self.object_action:
+            if i.name == action:
+                i.play(self, types, sec)
+
+class Actions():
+    def __init__(self, name, frames, scale=None):
+        self.name = str(name)
+        self.paths = list(frames)
+        self.scale = scale
+        self.frames = list()
+        self.isplaying = False
+        for i in self.paths:
+            self.frames.append(pygame.image.load(i))
+        if scale != None:
+            for img in self.frames:
+                pygame.transform.scale(i, self.scale)
+        
+    def _play(self, obj, sec):
+        self.sec = sec / len(self.frames)
+        for i in self.frames:
+            obj.sprite = i
+            time.sleep(self.sec)
+        obj.sprite = self.frames[0]
+        self.isplaying = False
+ 
+
+    
+    def play(self, obj, types, sec):
+        if types == "play":
+            if self.isplaying is False:
+                self.isplaying = True
+                th = Thread(target=self._play, args=[obj, sec])
+                th.start()
+
 
 class Engine():
     def __init__(self, window_h, window_w, delay=50, caption="myGame"):
@@ -85,7 +127,6 @@ class Engine():
 
     def update(self, scane):
         running = True
-
         while running:
             self.clock.tick(self.delay)
             events = pygame.event.get()
