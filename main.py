@@ -1,9 +1,8 @@
 from includes import *
-from win import *
 
 
-def ps_code(code, maps, player):
-    player.translate(code)
+# def ps_code(code, maps, player):
+#     player.translate(code)
         
 
 def handle_input():
@@ -20,22 +19,33 @@ def handle_input():
         y = y + 32
     return (x, y)
 
-def event_handle(wn, maps, player):
-    while True:
-        pygame.time.delay(60)
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                pygame.quit()
-        code = handle_input()
-        ps_code(code, maps, player)
-        wn.update(maps)
+# def event_handle(wn, maps, player):
+#     while True:
+#         pygame.time.delay(60)
+#         for e in pygame.event.get():
+#             if e.type == pygame.QUIT:
+#                 pygame.quit()
+#         code = handle_input()
+#         ps_code(code, maps, player)
+#         wn.render(maps)
 
+
+def play(obj):
+    vector = handle_input()
+    obj.translate(vector)
+
+def playtop(obj):
+    obj.translate((5, 0))
 
 if __name__ == "__main__":
     pygame.init()
-    wn = Cr_Window(800, 600)
-    wn.set_window("pytry")
-    player = GameObject("player", (250, 250), "first.png")
+    wn = Engine(800, 600, caption="myEngine")
     maps = Scene("Main")
+    player = GameObject("player", (250, 250), "first.png")
     maps.add_object(player)
-    event_handle(wn, maps, player)
+    player.script = play
+    top = GameObject("top", (25, 100), "top.png")
+    top.script = playtop
+    maps.add_object(top)
+    wn.update(maps)
+

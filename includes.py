@@ -8,6 +8,9 @@ class Scene():
     def __init__(self, name):
         self.objs = []
         self.name = name
+        
+    def add_object(self, obj):
+        self.objs.append(obj)
         i = 0
         while (i < len(self.objs) and i + 1 < len(self.objs)):
             if self.objs[i].z_index > self.objs[i + 1].z_index:
@@ -15,9 +18,6 @@ class Scene():
                 self.objs[i] = self.objs[i + 1]
                 self.objs[i + 1] = temp
             i = i + 1
-
-    def add_object(self, obj):
-        self.objs.append(obj)
        
 class GameObject():
     def __init__(self, Name, position, sprite, width_height=None, z_index=1):
@@ -26,6 +26,7 @@ class GameObject():
         self.sprite = pygame.image.load(sprite)
         self.width_height = width_height
         self.z_index = z_index
+        self.script = None
         if (self.width_height != None):
             self.sprite = pygame.transform.scale(self.sprite, self.width_height)
         else:
@@ -37,20 +38,36 @@ class GameObject():
     
     def kill(self, map):
         map.objs.remove(self.name)
+
+    def script_run(self):
+        if self.script != None:
+            self.script(self)
+
     
 
-class Cr_Window():
-    def __init__(self, window_h, window_w):
+class Engine():
+    def __init__(self, window_h, window_w, delay=50, caption="myGame"):
         self.window_h = window_h
         self.window_w = window_w
+        self.delay = delay
         self.wn = pygame.display.set_mode((self.window_h, self.window_w))
-
-    def set_window(self, caption="myGame"):
         pygame.display.set_caption(caption)
 
-    def update(self, scene):
+    def render(self, scene):
         self.wn.fill((0, 0, 0))
         for obj in scene.objs:
             self.wn.blit(obj.sprite, obj.position)
             pygame.display.update()
-        
+
+    def calls(self, scene):
+        for ob in scene.objs:
+            ob.script_run()
+    
+    def update(self, scane):
+        while True:
+            pygame.time.delay(self.delay)
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    pygame.quit()
+            self.render(scane)
+            self.calls(scane)
